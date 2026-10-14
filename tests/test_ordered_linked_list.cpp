@@ -32,7 +32,7 @@ TEST(OrderedLinkedListTest, ExampleTest)
   ASSERT_EQ(*l.front(), *l.back());
 }
 
-TEST(OrderedLinkedListTest, AddItemInsertsItemsInCorrectLocation)
+TEST(OrderedLinkedListTest, AddItem_CorrectOrder)
 {
   ordered_linked_list<ExampleComparableType> l;
 
@@ -51,3 +51,4 @@ TEST(OrderedLinkedListTest, AddItemInsertsItemsInCorrectLocation)
   ++it;
   ASSERT_EQ(*(*it), 2);
 }
+

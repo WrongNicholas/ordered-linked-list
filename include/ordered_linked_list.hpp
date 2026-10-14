@@ -18,7 +18,7 @@ class ordered_linked_list {
 public:
 
   // TODO: see if these need to be adjusted
-  ordered_linked_list() = default;
+  ordered_linked_list();
   ~ordered_linked_list() = default;
   
   void add_item(T* ptr);
@@ -39,34 +39,42 @@ public:
     iterator(list_node<T>* node) : current(node) { }
   };
 
-  iterator begin() { return iterator(head); }
+  iterator begin() { return iterator(m_head); }
   iterator end() { return iterator(nullptr); }
 
 private:
-  list_node<T>* head = nullptr;
-  list_node<T>* tail = nullptr;
-  std::size_t list_size = 0;
+  list_node<T>* m_head;
+  list_node<T>* m_tail;
+  std::size_t m_list_size;
 };
+
+template <typename T>
+ordered_linked_list<T>::ordered_linked_list()
+{
+  m_head = nullptr;
+  m_tail = nullptr;
+  m_list_size = 0;
+}
 
 template <typename T>
 void ordered_linked_list<T>::add_item(T* ptr)
 {
   auto node = new list_node<T>(ptr);
   // list is empty
-  if (list_size == 0)
+  if (m_list_size == 0)
   {
-    list_size++;
-    head = node;
-    tail = node;
+    m_list_size++;
+    m_head = node;
+    m_tail = node;
     return;
   }
 
-  // test head
-  if (*ptr < *head->ptr)
+  // test m_head
+  if (*ptr < *m_head->ptr)
   {
-    list_size++;
-    node->next = head;
-    head = node;
+    m_list_size++;
+    node->next = m_head;
+    m_head = node;
     return;
   }
   
@@ -76,8 +84,8 @@ void ordered_linked_list<T>::add_item(T* ptr)
     // if it's next is null, break out of loop
     if (!it.get_node()->next)
     {
-      // set tail because this will be last value
-      tail = node;
+      // set m_tail because this will be last value
+      m_tail = node;
       break;
     }
 
@@ -90,19 +98,19 @@ void ordered_linked_list<T>::add_item(T* ptr)
   
   it.get_node()->next = node;
 
-  list_size++;
+  m_list_size++;
 }
 
 template <typename T>
 T* ordered_linked_list<T>::front()
 {
-  return head->ptr;
+  return m_head->ptr;
 }
 
 template <typename T>
 T* ordered_linked_list<T>::back()
 {
-  return tail->ptr;
+  return m_tail->ptr;
 }
 
 #endif
