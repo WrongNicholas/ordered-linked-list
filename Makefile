@@ -51,6 +51,12 @@ else
 	( echo "$(RED)Docs build failed!$(RESET)\n  $(YELLOW)Try running with VERBOSE=1 to see full output.$(RESET)"; exit 1 )
 endif
 
+# Run!
+.PHONY: run
+run: build
+	@echo "$(CYAN)Running app...$(RESET)"
+	@./$(BUILD_DIR)/app
+
 # Displays help command
 .PHONY: help
 help:
@@ -58,5 +64,6 @@ help:
 	@echo "  $(CYAN)make build$(RESET)     - Build the project"
 	@echo "  $(MAGENTA)make test$(RESET)      - Run all tests"
 	@echo "  $(YELLOW)make clean$(RESET)     - Remove the build directory"
+	@echo "  $(YELLOW)make run$(RESET)     - Run the app
 	@echo "  $(BLUE)make docs$(RESET)      - Build docs"
 	@echo "  $(GREEN)make help$(RESET)      - Show this help message"
