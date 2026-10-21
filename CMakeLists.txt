@@ -12,9 +12,11 @@ target_include_directories(ordered_linked_list INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_executable(app src/main.cpp)
+add_executable(app_new src/main.cpp)
+add_executable(app_old src/main_old.cpp)
 
-target_link_libraries(app PRIVATE ordered_linked_list)
+target_link_libraries(app_new PRIVATE ordered_linked_list)
+target_link_libraries(app_old PRIVATE ordered_linked_list)
 
 enable_testing()
 add_subdirectory(tests)

@@ -4,6 +4,7 @@
 
 #include <stdexcept>
 #include <cstddef>
+#include <iostream>
 
 template <typename T>
 struct list_node {
@@ -19,9 +20,11 @@ template <typename T>
 class ordered_linked_list {
 public:
 
-  // TODO: see if these need to be adjusted
   ordered_linked_list();
+  ordered_linked_list(const ordered_linked_list<T>& l);
   ~ordered_linked_list();
+
+  ordered_linked_list& operator=(const ordered_linked_list& l);
   
   void add_item(T* ptr);
   T* get_item(T* ptr);
@@ -33,8 +36,14 @@ public:
   T* see_at(int idx);
   void reset();
 
-  T* front() const;
-  T* back() const;
+  void display_all() const;
+
+  void remove_all();
+
+  T* get_largest() const;
+  T* get_smallest() const;
+
+  void reverse();
 
   // my beautiful iterators <3
   class iterator {
@@ -61,6 +70,10 @@ private:
   list_node<T>* m_tail;
   std::size_t m_list_size;
 
+  // is the list reversed?
+  // yes, owen. i implemented it this way
+  bool m_is_ascending = true;
+
   // continuous iterator
   iterator m_iterator;
 };
@@ -74,7 +87,43 @@ ordered_linked_list<T>::ordered_linked_list()
 }
 
 template <typename T>
+ordered_linked_list<T>::ordered_linked_list(const ordered_linked_list<T>& l)
+{
+  m_head = nullptr;
+  m_tail = nullptr;
+  m_list_size = 0;
+
+  for (auto it = l.begin(); it != l.end(); ++it)
+  {
+    
+    add_item(*it);
+  }
+}
+
+template <typename T>
+ordered_linked_list<T>& ordered_linked_list<T>::operator=(const ordered_linked_list<T>& l)
+{
+  // test for self-assignment
+  if (this == &l) return *this;
+
+  remove_all();
+
+  for (auto it = l.begin(); it != l.end(); ++it)
+  {
+    add_item(*it);
+  }
+
+  return *this;
+}
+
+template <typename T>
 ordered_linked_list<T>::~ordered_linked_list<T>()
+{
+  remove_all();
+}
+
+template <typename T>
+void ordered_linked_list<T>::remove_all()
 {
   list_node<T>* current = m_head;
 
@@ -84,6 +133,11 @@ ordered_linked_list<T>::~ordered_linked_list<T>()
     delete current;
     current = next;
   }
+
+  m_head = nullptr;
+  m_tail = nullptr;
+  m_list_size = 0;
+  m_iterator = begin();
 }
 
 template <typename T>
@@ -101,7 +155,8 @@ void ordered_linked_list<T>::add_item(T* ptr)
   }
 
   // test m_head
-  if (*ptr < *m_head->ptr)
+  bool comparison = m_is_ascending ? *ptr < *m_head->ptr : *ptr > *m_head->ptr;
+  if (comparison)
   {
     m_list_size++;
     node->next = m_head;
@@ -121,7 +176,8 @@ void ordered_linked_list<T>::add_item(T* ptr)
       break;
     }
 
-    if (*it.get_node()->next->ptr > *node->ptr)
+    bool comparison = m_is_ascending ? *it.get_node()->next->ptr > *node->ptr : *it.get_node()->next->ptr < *node->ptr;
+    if (comparison)
     {
       node->next = it.get_node()->next;
       node->next->prev = node;
@@ -141,7 +197,7 @@ T* ordered_linked_list<T>::get_item(T* ptr)
   
   for (auto it = begin(); it != end(); ++it)
   {
-    if (ptr != *it)
+    if (*ptr != **it)
       continue;
 
     // remove from list
@@ -167,13 +223,15 @@ T* ordered_linked_list<T>::get_item(T* ptr)
     {
       ++m_iterator;
     }
+
+    T* data = it.get_node()->ptr;
     delete it.get_node();
     
     // decrement m_list_size
     m_list_size--;
 
     // then return ptr
-    return ptr;
+    return data;
     
   }
 
@@ -185,7 +243,7 @@ bool ordered_linked_list<T>::is_in_list(T* ptr) const
 {
   for (auto it = begin(); it != end(); ++it)
   {
-    if (ptr == *it)
+    if (*ptr == **it)
       return true;
   }
 
@@ -234,8 +292,10 @@ T* ordered_linked_list<T>::see_at(int idx)
     ++it;
   }
 
+  T* item_to_return = *it;
   m_iterator = it;
-  return *m_iterator;
+  ++m_iterator;
+  return item_to_return;
 }
 
 template <typename T>
@@ -244,16 +304,117 @@ void ordered_linked_list<T>::reset()
   m_iterator = begin();
 }
 
+// forcing a use of .display() is ridiculous here.
+// the point of a templated class is that it's supposed to be agnostic
+// but, here we're forcing the templated class to have an odd non-standard display() method
 template <typename T>
-T* ordered_linked_list<T>::front() const
+void ordered_linked_list<T>::display_all() const
 {
-  return m_head->ptr;
+  if (is_empty())
+  {
+    std::cout << " [HEAD] <--> [NULL]\n";
+    return;
+  }
+
+  std::cout << "            [HEAD]\n";
+  std::cout << "              |\n";
+  std::cout << "              v\n";
+
+  int index = 0;
+  for (auto it = begin(); it != end(); ++it)
+  {
+    std::cout << " ===============================\n";
+    std::cout << "        NODE [" << index << "]\n";
+    std::cout << " -------------------------------\n";
+    (*it)->display();
+
+    std::cout << " ===============================\n";
+
+    ++index;
+
+    // checking to see if theres a next node
+    auto next_it = it;
+    ++next_it;
+    if (next_it != end())
+    {
+      std::cout << "          ^   |\n";
+      std::cout << "     prev |   | next\n";
+      std::cout << "          |   v\n";
+    }
+  }
+
+      std::cout << "              |\n";
+      std::cout << "              v\n";
+      std::cout << "            [NULL]\n";
 }
 
 template <typename T>
-T* ordered_linked_list<T>::back() const
+T* ordered_linked_list<T>::get_largest() const
 {
-  return m_tail->ptr;
+
+  // list_node<T> current = m_head;
+  // T* largest = m_head->ptr;
+  // auto it = begin();
+  // ++it;
+  // for (; it != end(); ++it)
+  // {
+  //   if (*current.ptr > *largest)
+  //   {
+  //     largest = current.ptr;
+  //   }
+  // }
+  //
+  // return largest;
+  //
+  // NAH!
+  // i did it cooler :
+  
+  if (is_empty()) return nullptr;
+  return m_is_ascending ? m_tail->ptr : m_head->ptr;
+}
+
+template <typename T>
+T* ordered_linked_list<T>::get_smallest() const
+{
+  // list_node<T> current = m_head;
+  // T* smallest = m_head->ptr;
+  // auto it = begin();
+  // ++it;
+  // for (; it != end(); ++it)
+  // {
+  //   if (*current.ptr < *smallest)
+  //   {
+  //     smallest = current.ptr;
+  //   }
+  // }
+  //
+  // return smallest;
+
+  if (is_empty()) return nullptr;
+  return m_is_ascending ? m_head->ptr : m_tail->ptr;
+}
+
+template <typename T>
+void ordered_linked_list<T>::reverse()
+{
+  list_node<T>* current = m_head;
+  list_node<T>* temp = nullptr;
+  while (current != nullptr)
+  {
+    temp = current->prev;
+    current->prev = current->next;
+    current->next = temp;
+    
+    current = current->prev;
+  }
+
+  temp = m_head;
+  m_head = m_tail;
+  m_tail = temp;
+
+  m_is_ascending = !m_is_ascending;
+
+  reset();
 }
 
 #endif

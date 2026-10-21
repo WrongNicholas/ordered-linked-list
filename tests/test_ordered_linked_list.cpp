@@ -24,16 +24,6 @@ struct ExampleComparableType
   ExampleComparableType(int value) : value(value) { }
 };
 
-TEST(OrderedLinkedListTest, ExampleTest)
-{
-  ordered_linked_list<ExampleComparableType> l;
-
-  auto* var1 = new ExampleComparableType(1);
-  l.add_item(var1);
-
-  ASSERT_EQ(*l.front(), *l.back());
-}
-
 TEST(OrderedLinkedListTest, AddItem_CorrectOrder)
 {
   ordered_linked_list<ExampleComparableType> l;

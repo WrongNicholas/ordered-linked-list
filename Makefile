@@ -52,10 +52,15 @@ else
 endif
 
 # Run!
-.PHONY: run
-run: build
-	@echo "$(CYAN)Running app...$(RESET)"
-	@./$(BUILD_DIR)/app
+.PHONY: run_task6
+run_task6: build
+	@echo "$(CYAN)Running task 6...$(RESET)"
+	@./$(BUILD_DIR)/app_old
+
+.PHONY: run_task7
+run_task7: build
+	@echo "$(CYAN)Running task 7...$(RESET)"
+	@./$(BUILD_DIR)/app_new
 
 # Displays help command
 .PHONY: help
@@ -64,6 +69,7 @@ help:
 	@echo "  $(CYAN)make build$(RESET)     - Build the project"
 	@echo "  $(MAGENTA)make test$(RESET)      - Run all tests"
 	@echo "  $(YELLOW)make clean$(RESET)     - Remove the build directory"
-	@echo "  $(YELLOW)make run$(RESET)     - Run the app
+	@echo "  $(RED)make run_task6$(RESET) - Run task 6"
+	@echo "  $(RED)make run_task7$(RESET) - Run task 7"
 	@echo "  $(BLUE)make docs$(RESET)      - Build docs"
 	@echo "  $(GREEN)make help$(RESET)      - Show this help message"
